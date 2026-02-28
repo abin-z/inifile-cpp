@@ -10,13 +10,9 @@ project(inifile-cpp LANGUAGES CXX)
 
 include(CTest)
 
-set(INICPP_CXX_STANDARD "11" CACHE STRING "C++ standard to use when building tests & examples.")
 option(GENERATE_COVERAGE "Enable generating code coverage" OFF)
 option(BUILD_TESTS "Enable building unit tests" OFF)
 option(BUILD_EXAMPLES "Enable building example applications" OFF)
-
-set(CMAKE_CXX_STANDARD ${INICPP_CXX_STANDARD})
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     add_compile_options(-Wall -Wextra)
@@ -34,6 +30,7 @@ target_include_directories(inicpp INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 add_library(inicpp::inicpp ALIAS inicpp)
+target_compile_features(inicpp INTERFACE cxx_std_11)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/inicpp.h TYPE INCLUDE)
 
 if(GENERATE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
