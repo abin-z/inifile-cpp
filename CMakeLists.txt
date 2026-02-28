@@ -7,22 +7,31 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(inifile-cpp LANGUAGES CXX)
-
-option(GENERATE_COVERAGE "Enable generating code coverage" OFF)
-option(BUILD_TESTS "Enable building unit tests" OFF)
-option(BUILD_EXAMPLES "Enable building example applications" OFF)
+include(GNUInstallDirs)
 
 add_library(inicpp INTERFACE)
-target_include_directories(inicpp INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
 add_library(inicpp::inicpp ALIAS inicpp)
 target_compile_features(inicpp INTERFACE cxx_std_11)
+target_include_directories(inicpp INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_compile_options(inicpp INTERFACE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra>
     $<$<CXX_COMPILER_ID:MSVC>:/WX;/wd4530>
 )
+
+if(NOT DEFINED INIFILE_CPP_MASTER_PROJECT)
+    if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+        set(INIFILE_CPP_MASTER_PROJECT ON)
+    else()
+        set(INIFILE_CPP_MASTER_PROJECT OFF)
+    endif()
+endif()
+
+option(GENERATE_COVERAGE "Enable generating code coverage" ${INIFILE_CPP_MASTER_PROJECT})
+option(BUILD_TESTS "Enable building unit tests" ${INIFILE_CPP_MASTER_PROJECT})
+option(BUILD_EXAMPLES "Enable building example applications" ${INIFILE_CPP_MASTER_PROJECT})
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/inicpp.h TYPE INCLUDE)
 
@@ -33,11 +42,13 @@ if(GENERATE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif(GENERATE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 
 if(BUILD_TESTS)
+    message(STATUS "[inicpp] Building unit tests")
     include(CTest)
     add_subdirectory(dep)
     add_subdirectory(test)
 endif()
 
 if(BUILD_EXAMPLES)
+    message(STATUS "[inicpp] Building examples")
     add_subdirectory(examples)
 endif()
