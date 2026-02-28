@@ -8,13 +8,9 @@ cmake_minimum_required(VERSION 3.15)
 
 project(inifile-cpp LANGUAGES CXX)
 
-include(CTest)
-
 option(GENERATE_COVERAGE "Enable generating code coverage" OFF)
 option(BUILD_TESTS "Enable building unit tests" OFF)
 option(BUILD_EXAMPLES "Enable building example applications" OFF)
-
-add_subdirectory(dep)
 
 add_library(inicpp INTERFACE)
 target_include_directories(inicpp INTERFACE
@@ -36,10 +32,12 @@ if(GENERATE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_link_options(inicpp INTERFACE --coverage)
 endif(GENERATE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 
-if(${BUILD_TESTS})
+if(BUILD_TESTS)
+    include(CTest)
+    add_subdirectory(dep)
     add_subdirectory(test)
-endif(${BUILD_TESTS})
+endif()
 
-if(${BUILD_EXAMPLES})
+if(BUILD_EXAMPLES)
     add_subdirectory(examples)
-endif(${BUILD_EXAMPLES})
+endif()
