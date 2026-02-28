@@ -14,15 +14,6 @@ option(GENERATE_COVERAGE "Enable generating code coverage" OFF)
 option(BUILD_TESTS "Enable building unit tests" OFF)
 option(BUILD_EXAMPLES "Enable building example applications" OFF)
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-    add_compile_options(-Wall -Wextra)
-endif(CMAKE_COMPILER_IS_GNUCXX)
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    add_compile_options(/WX /wd4530)
-endif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-
-
 add_subdirectory(dep)
 
 add_library(inicpp INTERFACE)
@@ -31,6 +22,12 @@ target_include_directories(inicpp INTERFACE
     $<INSTALL_INTERFACE:include>)
 add_library(inicpp::inicpp ALIAS inicpp)
 target_compile_features(inicpp INTERFACE cxx_std_11)
+
+target_compile_options(inicpp INTERFACE
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra>
+    $<$<CXX_COMPILER_ID:MSVC>:/WX;/wd4530>
+)
+
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/inicpp.h TYPE INCLUDE)
 
 if(GENERATE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
