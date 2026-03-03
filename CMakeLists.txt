@@ -16,11 +16,6 @@ target_include_directories(inicpp INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-target_compile_options(inicpp INTERFACE
-    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra>
-    $<$<CXX_COMPILER_ID:MSVC>:/WX;/wd4530>
-)
-
 if(NOT DEFINED INIFILE_CPP_MASTER_PROJECT)
     if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
         set(INIFILE_CPP_MASTER_PROJECT ON)
@@ -29,17 +24,28 @@ if(NOT DEFINED INIFILE_CPP_MASTER_PROJECT)
     endif()
 endif()
 
+if(INIFILE_CPP_MASTER_PROJECT)
+    target_compile_options(inicpp INTERFACE
+        $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall;-Wextra>
+        $<$<CXX_COMPILER_ID:MSVC>:/W4>
+    )
+endif()
+
 option(GENERATE_COVERAGE "Enable generating code coverage" ${INIFILE_CPP_MASTER_PROJECT})
 option(BUILD_TESTS "Enable building unit tests" ${INIFILE_CPP_MASTER_PROJECT})
 option(BUILD_EXAMPLES "Enable building example applications" ${INIFILE_CPP_MASTER_PROJECT})
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/inicpp.h TYPE INCLUDE)
+install(DIRECTORY include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        FILES_MATCHING
+        PATTERN "*.h"
+)
 
 if(GENERATE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # Add required flags (GCC & LLVM/Clang)
     target_compile_options(inicpp INTERFACE -O0 -g --coverage)
     target_link_options(inicpp INTERFACE --coverage)
-endif(GENERATE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+endif()
 
 if(BUILD_TESTS)
     message(STATUS "[inicpp] Building unit tests")
