@@ -31,9 +31,9 @@ if(INIFILE_CPP_MASTER_PROJECT)
     )
 endif()
 
-option(GENERATE_COVERAGE "Enable generating code coverage" ${INIFILE_CPP_MASTER_PROJECT})
-option(BUILD_TESTS "Enable building unit tests" ${INIFILE_CPP_MASTER_PROJECT})
-option(BUILD_EXAMPLES "Enable building example applications" ${INIFILE_CPP_MASTER_PROJECT})
+option(INIFILE_CPP_GENERATE_COVERAGE "Enable generating code coverage" ${INIFILE_CPP_MASTER_PROJECT})
+option(INIFILE_CPP_BUILD_TESTS "Enable building unit tests" ${INIFILE_CPP_MASTER_PROJECT})
+option(INIFILE_CPP_BUILD_EXAMPLES "Enable building example applications" ${INIFILE_CPP_MASTER_PROJECT})
 
 install(DIRECTORY include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
@@ -41,20 +41,21 @@ install(DIRECTORY include/
         PATTERN "*.h"
 )
 
-if(GENERATE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+if(INIFILE_CPP_GENERATE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # Add required flags (GCC & LLVM/Clang)
+    message(STATUS "[inicpp] Enabling code coverage generation")
     target_compile_options(inicpp INTERFACE -O0 -g --coverage)
     target_link_options(inicpp INTERFACE --coverage)
 endif()
 
-if(BUILD_TESTS)
+if(INIFILE_CPP_BUILD_TESTS)
     message(STATUS "[inicpp] Building unit tests")
     include(CTest)
     add_subdirectory(dep)
     add_subdirectory(test)
 endif()
 
-if(BUILD_EXAMPLES)
+if(INIFILE_CPP_BUILD_EXAMPLES)
     message(STATUS "[inicpp] Building examples")
     add_subdirectory(examples)
 endif()
