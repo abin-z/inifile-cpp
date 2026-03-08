@@ -950,3 +950,29 @@ TEST_CASE("invalid numeric conversion", "IniFile")
 
     REQUIRE_THROWS_AS(inif["Foo"]["bad"].as<int>(), std::invalid_argument);
 }
+
+TEST_CASE("custom escape char", "IniFile")
+{
+    std::istringstream ss("[Foo]\nbar=hello !#world");
+    ini::IniFile inif;
+
+    inif.setEscapeChar('!');
+    inif.decode(ss);
+
+    REQUIRE(inif["Foo"]["bar"].as<std::string>() == "hello #world");
+}
+
+TEST_CASE("escape char affects comment escaping", "IniFile")
+{
+    std::istringstream ss("[Foo]\nkey=val\\#notacomment\n");
+    ini::IniFile inif(ss);
+
+    inif.setEscapeChar('\\');
+    std::string encoded = inif.encode();
+    REQUIRE(encoded.find("\\#notacomment") != std::string::npos);
+
+    inif.setEscapeChar('$');
+    inif["Foo"]["key"] = "value$#comment";
+    encoded = inif.encode();
+    REQUIRE(encoded.find("$#comment") != std::string::npos);
+}
